@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Güvenli Liman</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚓</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EDE8DA;
+    --surface: #FFFFFF;
+    --surface-2: #F6F1E4;
+    --ink: #201B12;
+    --muted: #7A7052;
+    --border: rgba(32, 27, 18, 0.12);
+    --accent: #96721E;
+    --accent-soft: rgba(150, 114, 30, 0.14);
+    --good: #3E7A52;
+    --good-soft: rgba(62, 122, 82, 0.13);
+    --bad: #A24A30;
+    --bad-soft: rgba(162, 74, 48, 0.13);
+    --warn: #B3821F;
+    --warn-soft: rgba(179, 130, 31, 0.16);
+    --try-color: #7C5A2E;
+    --usd-cash-color: #4F7A6E;
+    --usd-vol-color: #96721E;
+    --shadow: 0 1px 2px rgba(32,27,18,0.05), 0 8px 24px -12px rgba(32,27,18,0.18);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0B0F16;
+      --surface: #131A24;
+      --surface-2: #171F2B;
+      --ink: #E9E4D6;
+      --muted: #8B9099;
+      --border: rgba(233, 228, 214, 0.10);
+      --accent: #D3A94B;
+      --accent-soft: rgba(211, 169, 75, 0.14);
+      --good: #6FBE8E;
+      --good-soft: rgba(111, 190, 142, 0.14);
+      --bad: #E08064;
+      --bad-soft: rgba(224, 128, 100, 0.14);
+      --warn: #E0B84E;
+      --warn-soft: rgba(224, 184, 78, 0.16);
+      --try-color: #C79B5E;
+      --usd-cash-color: #7FB3A3;
+      --usd-vol-color: #D3A94B;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 32px -16px rgba(0,0,0,0.6);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0B0F16;
+    --surface: #131A24;
+    --surface-2: #171F2B;
+    --ink: #E9E4D6;
+    --muted: #8B9099;
+    --border: rgba(233, 228, 214, 0.10);
+    --accent: #D3A94B;
+    --accent-soft: rgba(211, 169, 75, 0.14);
+    --good: #6FBE8E;
+    --good-soft: rgba(111, 190, 142, 0.14);
+    --bad: #E08064;
+    --bad-soft: rgba(224, 128, 100, 0.14);
+    --warn: #E0B84E;
+    --warn-soft: rgba(224, 184, 78, 0.16);
+    --try-color: #C79B5E;
+    --usd-cash-color: #7FB3A3;
+    --usd-vol-color: #D3A94B;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 32px -16px rgba(0,0,0,0.6);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 28px 20px 64px;
+  }
+
+  .num { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  /* ---------- header ---------- */
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .brand h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 700;
+    font-size: 34px;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px;
+    text-wrap: balance;
+  }
+  .brand p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13.5px;
+  }
+  .badges { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .demo-badge {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--bad);
+    background: var(--bad-soft);
+    border: 1px solid color-mix(in srgb, var(--bad) 40%, transparent);
+    padding: 4px 9px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .updated { color: var(--muted); font-size: 12px; }
+
+  /* ---------- hero stats ---------- */
+  .hero {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 26px;
+    box-shadow: var(--shadow);
+  }
+  .stat {
+    background: var(--surface);
+    padding: 18px 20px;
+  }
+  .stat .label {
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .stat .value {
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .stat .sub { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  .stat.primary .value { color: var(--accent); font-weight: 600; }
+  .delta-up { color: var(--good); }
+  .delta-down { color: var(--bad); }
+
+  /* ---------- section shell ---------- */
+  section { margin-bottom: 22px; }
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 22px;
+    box-shadow: var(--shadow);
+  }
+  .panel-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .panel-title h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+  }
+  .chip {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 100px;
+  }
+  .chip.ready { color: var(--good); background: var(--good-soft); }
+  .chip.notready { color: var(--warn); background: var(--warn-soft); }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 720px) { .cols { grid-template-columns: 1fr; } }
+
+  /* ---------- allocation rows ---------- */
+  .row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+  }
+  .row:last-child { border-bottom: none; }
+  .row .name { min-width: 0; }
+  .row .weight { color: var(--muted); width: 44px; text-align: right; }
+  .bar-track {
+    height: 5px;
+    background: var(--surface-2);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+  .bar-fill { height: 100%; background: var(--accent); border-radius: 3px; }
+
+  .price-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: baseline;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+  }
+  .price-row:last-child { border-bottom: none; }
+  .ticker { color: var(--muted); font-size: 11.5px; }
+  .pct.flat { color: var(--muted); }
+
+  .unallocated-note {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px dashed var(--border);
+    padding-top: 10px;
+  }
+
+  /* ---------- currency bar ---------- */
+  .fx-bar {
+    display: flex;
+    height: 22px;
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .fx-seg { display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 600; color: #fff; }
+  .fx-try { background: var(--try-color); }
+  .fx-cash { background: var(--usd-cash-color); }
+  .fx-vol { background: var(--usd-vol-color); }
+  .fx-legend { display: flex; gap: 18px; margin-top: 10px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+  .fx-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+
+  /* ---------- alert strip ---------- */
+  .alerts { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .alert {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border-radius: 7px;
+    font-size: 13px;
+    border: 1px solid transparent;
+  }
+  .alert.ok { color: var(--good); background: var(--good-soft); border-color: color-mix(in srgb, var(--good) 30%, transparent); }
+  .alert.warn { color: var(--warn); background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 30%, transparent); }
+
+  /* ---------- friction list ---------- */
+  .friction { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+  .friction li { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; }
+  .friction .mark { color: var(--warn); flex-shrink: 0; font-weight: 700; }
+
+  /* ---------- log ---------- */
+  .log { list-style: none; margin: 0; padding: 0; font-size: 12.5px; }
+  .log li {
+    display: grid;
+    grid-template-columns: 128px 1fr;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .log li:last-child { border-bottom: none; }
+  .log li .t { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--muted); }
+  .log li .d { color: var(--ink); }
+
+  .note-block {
+    font-size: 12.5px;
+    color: var(--muted);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-top: 12px;
+  }
+
+  footer {
+    margin-top: 30px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 11.5px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <h1>Güvenli Liman</h1>
+      <p>Iron Wall Capital — E10 · İki Katmanlı Sermaye Yapısı (Güvenli Liman + Büyüme/Alfa)</p>
+    </div>
+    <div class="badges">
+      <span class="demo-badge">Demo — kağıt üstü, gerçek para değil</span>
+      <span class="updated" id="updated-at">Güncelleniyor…</span>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="stat primary">
+      <div class="label">Toplam Sistem</div>
+      <div class="value num" id="stat-total">—</div>
+      <div class="sub" id="stat-return">—</div>
+    </div>
+    <div class="stat">
+      <div class="label">Anapara</div>
+      <div class="value num" id="stat-principal">—</div>
+      <div class="sub">Dokunulmaz — hiçbir zaman azaltılmaz</div>
+    </div>
+    <div class="stat">
+      <div class="label">Süpürülmemiş Kazanç</div>
+      <div class="value num" id="stat-accrued">—</div>
+      <div class="sub">Katman 2'ye henüz aktarılmadı</div>
+    </div>
+    <div class="stat">
+      <div class="label">Büyüme / Alfa</div>
+      <div class="value num" id="stat-growth">—</div>
+      <div class="sub" id="stat-growth-share">—</div>
+    </div>
+  </div>
+
+  <section class="cols">
+    <div class="panel">
+      <div class="panel-title">
+        <h2>Güvenli Liman</h2>
+        <span class="chip ready">Anapara Korumalı</span>
+      </div>
+      <div id="safe-haven-rows"></div>
+      <div class="unallocated-note" id="unallocated-note"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">
+        <h2>Büyüme / Alfa</h2>
+        <span class="chip" id="growth-chip">—</span>
+      </div>
+      <div id="growth-rows"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-title"><h2>Döviz Maruziyeti</h2></div>
+    <div class="fx-bar" id="fx-bar"></div>
+    <div class="fx-legend">
+      <span><i class="dot" style="background:var(--try-color)"></i> TRY</span>
+      <span><i class="dot" style="background:var(--usd-cash-color)"></i> USD — nakit benzeri (SGOV/stablecoin)</span>
+      <span><i class="dot" style="background:var(--usd-vol-color)"></i> USD — oynak (hisse/emtia/kıymetli metal)</span>
+    </div>
+    <div class="alerts" id="risk-alerts"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-title"><h2>Gerçek-Sürtünme Kontrolü</h2></div>
+    <ul class="friction" id="friction-list"></ul>
+  </section>
+
+  <section class="panel">
+    <div class="panel-title"><h2>Son Hareketler</h2></div>
+    <ul class="log" id="activity-log"></ul>
+  </section>
+
+  <footer>
+    <span>Kaynak: E10 — Iron Wall Capital, PROTO_02 · two_tier_capital_system</span>
+    <span id="footer-started">—</span>
+  </footer>
+
+</div>
+
+<script type="application/json" id="ledger-state">
+{
+  "last_updated_utc": "2026-08-23T11:08:26",
+  "safe_haven_principal": 10000.0,
+  "safe_haven_accrued_unswept": 4.245780821917808,
+  "growth_alpha_balance": 17.467148838302446,
+  "growth_alpha_peak_balance": 17.467148838302446,
+  "started_at": "2026-08-22T23:38:19",
+  "total_return_pct": 0.2171,
+  "effective_safe_haven_split": {
+    "TL vadeli mevduat (TR bankası)": 0.18,
+    "Kısa vadeli ABD Hazine bonosu ETF'i (örn. SGOV/BIL)": 0.18,
+    "Stablecoin lending (Aave/Compound, itibarlı platform)": 0.18,
+    "ETH staking (solo veya likit staking)": 0.15
+  },
+  "unallocated_pending_rate_verification": 0.31,
+  "recommended_growth_alpha_split": {
+    "Geniş piyasa endeks fonu/ETF'i (örn. S&P 500)": 0.35,
+    "Nasdaq-100 endeks fonu/ETF'i (örn. QQQ/QQQM)": 0.15,
+    "Altın / kıymetli metaller (fiziksel veya ETF)": 0.2,
+    "Gümüş (fiziksel, ETF veya TR banka/fon hesabı)": 0.1,
+    "TR hisse senedi piyasası maruziyeti — BIST50 endeksi (bireysel hisse seçimi DEĞİL)": 0.1,
+    "Bakır (ETF/emtia fonu — fiziksel TR banka hesabı YOK)": 0.05,
+    "Uranyum (madenci hisseleri/ETF — fiziksel değil)": 0.05
+  },
+  "growth_alpha_price_basis": {
+    "Geniş piyasa endeks fonu/ETF'i (örn. S&P 500)": {
+      "last_price": 765.72,
+      "ticker": "SPY"
+    },
+    "Nasdaq-100 endeks fonu/ETF'i (örn. QQQ/QQQM)": {
+      "last_price": 713.44,
+      "ticker": "QQQ"
+    },
+    "Altın / kıymetli metaller (fiziksel veya ETF)": {
+      "last_price": 423.36,
+      "ticker": "GLD"
+    },
+    "Gümüş (fiziksel, ETF veya TR banka/fon hesabı)": {
+      "last_price": 62.72,
+      "ticker": "SLV"
+    },
+    "TR hisse senedi piyasası maruziyeti — BIST50 endeksi (bireysel hisse seçimi DEĞİL)": {
+      "last_price": 121.85,
+      "ticker": "ZELOT.IS"
+    },
+    "Bakır (ETF/emtia fonu — fiziksel TR banka hesabı YOK)": {
+      "last_price": 39.99,
+      "ticker": "CPER"
+    },
+    "Uranyum (madenci hisseleri/ETF — fiziksel değil)": {
+      "last_price": 46.07,
+      "ticker": "URA"
+    }
+  },
+  "last_price_pct_change": {
+    "Geniş piyasa endeks fonu/ETF'i (örn. S&P 500)": 0.0,
+    "Nasdaq-100 endeks fonu/ETF'i (örn. QQQ/QQQM)": 0.0,
+    "Altın / kıymetli metaller (fiziksel veya ETF)": 0.0,
+    "Gümüş (fiziksel, ETF veya TR banka/fon hesabı)": 0.0,
+    "TR hisse senedi piyasası maruziyeti — BIST50 endeksi (bireysel hisse seçimi DEĞİL)": 0.0,
+    "Bakır (ETF/emtia fonu — fiziksel TR banka hesabı YOK)": 0.0,
+    "Uranyum (madenci hisseleri/ETF — fiziksel değil)": 0.0
+  },
+  "growth_alpha_drawdown_pct": 0.0,
+  "growth_alpha_share_pct": 0.17,
+  "growth_alpha_cap_pct": 40.0,
+  "currency_exposure": {
+    "try_pct": 48.93,
+    "usd_cash_like_pct": 35.94,
+    "usd_volatile_pct": 15.13,
+    "try_concentration_warning": false
+  },
+  "unverified_real_world_friction_items": [
+    "TL vadeli mevduat — bankanın gerçek minimum açılış/yenileme tutarı",
+    "TL vadeli mevduat — erken çekim/bozdurma cezası (gerçek oran)",
+    "Stablecoin lending — gerçek gas/işlem ücreti (yatırma+çekme)",
+    "ETH staking — likit staking token'ının gerçek depeg/likidite riski, unstake gecikme süresi",
+    "SGOV/BIL — yabancı aracı kurum açılış/tutma/transfer gerçek maliyeti (TR mukimi için)"
+  ],
+  "recent_history": [
+    "2026-08-23T09:39:00 — Enstrüman SEÇİLDİ: Geniş piyasa endeks fonu/ETF'i (örn. S&P 500) (GROWTH_ALPHA) — gerekçe: \"Sistem önerisi kabul edildi (Founder: 'ben karar vermeyeceğim sistem önerecek', 2026-08-23)\"",
+    "2026-08-23T09:39:00 — Enstrüman SEÇİLDİ: Nasdaq-100 endeks fonu/ETF'i (örn. QQQ/QQQM) (GROWTH_ALPHA) — gerekçe: \"Sistem önerisi kabul edildi (Founder: 'ben karar vermeyeceğim sistem önerecek', 2026-08-23)\"",
+    "2026-08-23T09:39:00 — Enstrüman SEÇİLDİ: Altın / kıymetli metaller (fiziksel veya ETF) (GROWTH_ALPHA) — gerekçe: \"Sistem önerisi kabul edildi (Founder: 'ben karar vermeyeceğim sistem önerecek', 2026-08-23)\"",
+    "2026-08-23T09:39:00 — Enstrüman SEÇİLDİ: Gümüş (fiziksel, ETF veya TR banka/fon hesabı) (GROWTH_ALPHA) — gerekçe: \"Sistem önerisi kabul edildi (Founder: 'ben karar vermeyeceğim sistem önerecek', 2026-08-23)\"",
+    "2026-08-23T09:39:00 — Enstrüman SEÇİLDİ: TR hisse senedi piyasası maruziyeti — BIST50 endeksi (bireysel hisse seçimi DEĞİL) (GROWTH_ALPHA) — gerekçe: \"Sistem önerisi kabul edildi (Founder: 'ben karar vermeyeceğim sistem önerecek', 2026-08-23)\"",
+    "2026-08-23T09:39:00 — Enstrüman SEÇİLDİ: Bakır (ETF/emtia fonu — fiziksel TR banka hesabı YOK) (GROWTH_ALPHA) — gerekçe: \"Sistem önerisi kabul edildi (Founder: 'ben karar vermeyeceğim sistem önerecek', 2026-08-23)\"",
+    "2026-08-23T09:39:00 — Enstrüman SEÇİLDİ: Uranyum (madenci hisseleri/ETF — fiziksel değil) (GROWTH_ALPHA) — gerekçe: \"Sistem önerisi kabul edildi (Founder: 'ben karar vermeyeceğim sistem önerecek', 2026-08-23)\"",
+    "2026-08-23T09:39:37 — Katman 1 kazancı tahakkuk etti: +2.12 (anaparaya karışmadı)",
+    "2026-08-23T10:29:08 — Katman 1 kazancı tahakkuk etti: +2.12 (anaparaya karışmadı)",
+    "2026-08-23T10:42:05 — Katman 1 kazancı tahakkuk etti: +2.12 (anaparaya karışmadı)",
+    "2026-08-23T11:00:46 — Katman 1 kazancından Katman 2'ye süpürüldü: 17.47",
+    "2026-08-23T11:02:37 — Growth/Alpha gerçek piyasa kaybı: -0.12 (Gerçek piyasa fiyat hareketi, proxy ticker'lar üzerinden kağıt simülasyon (7 enstrüman))",
+    "2026-08-23T11:03:41 — Growth/Alpha gerçek piyasa kazancı: +0.12 (TEST DÜZELTMESİ — önceki -0.12, gerçek fiyat verisi değil, kasıtlı simüle edilmiş bir test perturbasyonuydu, geri alındı)",
+    "2026-08-23T11:07:00 — Katman 1 kazancı tahakkuk etti: +2.12 (anaparaya karışmadı)",
+    "2026-08-23T11:08:26 — Katman 1 kazancı tahakkuk etti: +2.12 (anaparaya karışmadı)"
+  ]
+}
+</script>
+
+<script>
+(function () {
+  var state = JSON.parse(document.getElementById('ledger-state').textContent);
+
+  function fmtUSD(n) {
+    return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtPct(n, digits) {
+    digits = digits === undefined ? 2 : digits;
+    var sign = n > 0 ? '+' : '';
+    return sign + n.toFixed(digits) + '%';
+  }
+
+  var total = state.safe_haven_principal + state.safe_haven_accrued_unswept + state.growth_alpha_balance;
+
+  document.getElementById('updated-at').textContent =
+    'Son güncelleme: ' + state.last_updated_utc + ' UTC';
+  document.getElementById('footer-started').textContent =
+    'Demo başlangıcı: ' + state.started_at;
+
+  document.getElementById('stat-total').textContent = fmtUSD(total);
+  document.getElementById('stat-return').innerHTML =
+    '<span class="' + (state.total_return_pct >= 0 ? 'delta-up' : 'delta-down') + '">' +
+    fmtPct(state.total_return_pct, 4) + '</span> · demo başlangıcından beri (naif, garanti değil)';
+
+  document.getElementById('stat-principal').textContent = fmtUSD(state.safe_haven_principal);
+  document.getElementById('stat-accrued').textContent = fmtUSD(state.safe_haven_accrued_unswept);
+  document.getElementById('stat-growth').textContent = fmtUSD(state.growth_alpha_balance);
+  document.getElementById('stat-growth-share').textContent =
+    'Toplamın %' + state.growth_alpha_share_pct.toFixed(2) + '’si (tavan %' + state.growth_alpha_cap_pct.toFixed(0) + ')';
+
+  // Safe haven rows
+  var shWrap = document.getElementById('safe-haven-rows');
+  Object.keys(state.effective_safe_haven_split).forEach(function (name) {
+    var w = state.effective_safe_haven_split[name] * 100;
+    var row = document.createElement('div');
+    row.innerHTML =
+      '<div class="row"><div class="name">' + name +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + w + '%"></div></div></div>' +
+      '<div class="weight num">%' + w.toFixed(1) + '</div><div></div></div>';
+    shWrap.appendChild(row);
+  });
+  document.getElementById('unallocated-note').textContent =
+    'Teyit bekleyen, dağıtılmamış pay: %' + (state.unallocated_pending_rate_verification * 100).toFixed(1) +
+    ' — bankadan/sağlayıcıdan bizzat teyit edilene kadar kazanç üretmiyor.';
+
+  // Growth rows
+  var gChip = document.getElementById('growth-chip');
+  gChip.textContent = 'READY · 7 seçili';
+  gChip.className = 'chip ready';
+
+  var gWrap = document.getElementById('growth-rows');
+  Object.keys(state.recommended_growth_alpha_split).forEach(function (name) {
+    var w = state.recommended_growth_alpha_split[name] * 100;
+    var basis = state.growth_alpha_price_basis[name] || {};
+    var pct = state.last_price_pct_change[name] || 0;
+    var pctClass = pct > 0 ? 'delta-up' : (pct < 0 ? 'delta-down' : 'flat');
+    var row = document.createElement('div');
+    row.className = 'price-row';
+    row.innerHTML =
+      '<div class="name">' + name.split('(')[0].trim() +
+      '<div class="ticker">' + (basis.ticker || '—') + ' · hedef %' + w.toFixed(0) + '</div></div>' +
+      '<div class="num pct ' + pctClass + '">' + fmtPct(pct) + '</div>' +
+      '<div class="num" style="color:var(--muted); font-size:12px;">' + (basis.last_price != null ? basis.last_price.toLocaleString('en-US') : '—') + '</div>';
+    gWrap.appendChild(row);
+  });
+
+  // FX bar
+  var fx = state.currency_exposure;
+  var fxBar = document.getElementById('fx-bar');
+  fxBar.innerHTML =
+    '<div class="fx-seg fx-try" style="width:' + fx.try_pct + '%">%' + fx.try_pct.toFixed(0) + '</div>' +
+    '<div class="fx-seg fx-cash" style="width:' + fx.usd_cash_like_pct + '%">%' + fx.usd_cash_like_pct.toFixed(0) + '</div>' +
+    '<div class="fx-seg fx-vol" style="width:' + fx.usd_volatile_pct + '%">%' + fx.usd_volatile_pct.toFixed(0) + '</div>';
+
+  // Risk alerts
+  var alerts = document.getElementById('risk-alerts');
+  function addAlert(ok, text) {
+    var d = document.createElement('div');
+    d.className = 'alert ' + (ok ? 'ok' : 'warn');
+    d.textContent = (ok ? '✓ ' : '⚠ ') + text;
+    alerts.appendChild(d);
+  }
+  addAlert(state.growth_alpha_drawdown_pct < 30, 'Büyüme/Alfa kayıp (drawdown): %' + state.growth_alpha_drawdown_pct.toFixed(1) + ' (eşik %30)');
+  addAlert(state.growth_alpha_share_pct <= state.growth_alpha_cap_pct, 'Büyüme/Alfa payı: %' + state.growth_alpha_share_pct.toFixed(1) + ' (tavan %' + state.growth_alpha_cap_pct.toFixed(0) + ')');
+  addAlert(!fx.try_concentration_warning, 'TRY yoğunlaşması: %' + fx.try_pct.toFixed(1) + ' (eşik %50)');
+
+  // Friction list
+  var fList = document.getElementById('friction-list');
+  state.unverified_real_world_friction_items.forEach(function (item) {
+    var li = document.createElement('li');
+    li.innerHTML = '<span class="mark">—</span><span>' + item + '</span>';
+    fList.appendChild(li);
+  });
+
+  // Activity log
+  var log = document.getElementById('activity-log');
+  state.recent_history.slice().reverse().forEach(function (line) {
+    var parts = line.split(' — ');
+    var li = document.createElement('li');
+    li.innerHTML = '<span class="t">' + (parts[0] || '') + '</span><span class="d">' + (parts.slice(1).join(' — ')) + '</span>';
+    log.appendChild(li);
+  });
+})();
+</script>
+
+</body>
+</html>

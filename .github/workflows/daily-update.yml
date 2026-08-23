@@ -1,0 +1,37 @@
+name: Günlük Güvenli Liman güncellemesi
+
+on:
+  schedule:
+    # 06:00 UTC = 09:00 Europe/Istanbul
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Gerçek piyasa verisiyle durumu güncelle
+        run: python3 update_ledger.py index.html
+
+      - name: Değişiklik varsa commit + push et
+        run: |
+          git config user.name "guvenli-liman-bot"
+          git config user.email "actions@users.noreply.github.com"
+          if ! git diff --quiet index.html; then
+            git add index.html
+            git commit -m "Günlük güncelleme: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          else
+            echo "Değişiklik yok, commit atlanıyor."
+          fi
